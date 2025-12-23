@@ -2,13 +2,39 @@
 <Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:auth="clr-namespace:Autoservice156MAUI.Views.Auth"
+       xmlns:client="clr-namespace:Autoservice156MAUI.Views.Client"
+       xmlns:vehicle="clr-namespace:Autoservice156MAUI.Views.Vehicle"
+       xmlns:service="clr-namespace:Autoservice156MAUI.Views.Service"
        x:Class="Autoservice156MAUI.AppShell"
        Title="Автосервис"
        FlyoutBehavior="Disabled">
 
+    <!-- Стартовая страница - логин -->
     <ShellContent
         Title="Вход"
         ContentTemplate="{DataTemplate auth:LoginPage}"
         Route="LoginPage" />
 
+    <!-- Главный TabBar после входа -->
+    <TabBar Route="MainTabBar">
+
+        <Tab Title="Клиенты" Icon="people.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate client:ClientListPage}"
+                Route="ClientListPage" />
+        </Tab>
+
+        <Tab Title="Транспорт" Icon="car.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate vehicle:VehicleListPage}"
+                Route="VehicleListPage" />
+        </Tab>
+
+        <Tab Title="Услуги" Icon="build.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate service:ServiceListPage}"
+                Route="ServiceListPage" />
+        </Tab>
+
+    </TabBar>
 </Shell>

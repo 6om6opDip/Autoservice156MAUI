@@ -5,90 +5,134 @@
              Title="Вход в систему">
 
     <ScrollView>
-        <VerticalStackLayout Spacing="20" Padding="30,40,30,30">
+        <VerticalStackLayout Spacing="25" Padding="30,60,30,30">
 
-            <!-- Заголовок -->
-            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+            <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                <Label Text="🚗" 
+                       FontSize="60"
+                       HorizontalOptions="Center"/>
+
                 <Label Text="Автосервис 156" 
-                       FontSize="28"
+                       FontSize="32"
                        FontAttributes="Bold"
                        TextColor="#512BD4"
                        HorizontalOptions="Center"/>
 
-                <Label Text="Вход в систему"
-                       FontSize="18"
+                <Label Text="Система управления"
+                       FontSize="16"
+                       TextColor="#666666"
                        HorizontalOptions="Center"/>
             </VerticalStackLayout>
 
-            <!-- Форма входа -->
-            <VerticalStackLayout Spacing="15">
-                <!-- Email -->
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="Email" />
-                    <Entry x:Name="EmailEntry"
-                           Placeholder="example@mail.com"
-                           Keyboard="Email" />
+            <VerticalStackLayout Spacing="20">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Email адрес" 
+                           FontSize="14"
+                           TextColor="#333333"/>
+                    <Frame Padding="0" 
+                           BorderColor="#E0E0E0" 
+                           CornerRadius="10"
+                           HasShadow="False">
+                        <Entry x:Name="EmailEntry"
+                               Placeholder="admin@example.com"
+                               Keyboard="Email"
+                               TextColor="#333333"
+                               BackgroundColor="Transparent"/>
+                    </Frame>
                 </VerticalStackLayout>
 
-                <!-- Пароль -->
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="Пароль" />
-                    <Entry x:Name="PasswordEntry"
-                           Placeholder="Введите пароль"
-                           IsPassword="True" />
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Пароль" 
+                           FontSize="14"
+                           TextColor="#333333"/>
+                    <Frame Padding="0" 
+                           BorderColor="#E0E0E0" 
+                           CornerRadius="10"
+                           HasShadow="False">
+                        <Entry x:Name="PasswordEntry"
+                               Placeholder="Введите пароль"
+                               IsPassword="True"
+                               TextColor="#333333"
+                               BackgroundColor="Transparent"/>
+                    </Frame>
                 </VerticalStackLayout>
 
-                <!-- Запомнить меня -->
                 <HorizontalStackLayout Spacing="10">
                     <CheckBox x:Name="RememberMeCheckbox" 
+                              Color="#512BD4"
                               VerticalOptions="Center" />
                     <Label Text="Запомнить меня" 
                            VerticalOptions="Center" 
-                           VerticalTextAlignment="Center" />
+                           TextColor="#666666"
+                           FontSize="14"/>
                 </HorizontalStackLayout>
 
-                <!-- Сообщение об ошибке -->
                 <Label x:Name="ErrorMessageLabel"
-                       TextColor="Red"
+                       Text=""
+                       TextColor="#D32F2F"
                        IsVisible="False"
-                       FontSize="12" />
+                       FontSize="13"
+                       HorizontalOptions="Center"/>
             </VerticalStackLayout>
 
-            <!-- Кнопки -->
-            <VerticalStackLayout Spacing="15" Padding="0,20,0,0">
-                <!-- Кнопка входа -->
-                <Button Text="Войти"
-                        Clicked="OnLoginClicked"
-                        BackgroundColor="#512BD4"
-                        TextColor="White"
-                        HeightRequest="50"
-                        FontSize="16" />
+            <Button Text="ВОЙТИ"
+                    Clicked="OnLoginClicked"
+                    BackgroundColor="#512BD4"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="55"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    Margin="0,10,0,0"/>
 
-                <!-- Ссылка на регистрацию -->
-                <Button Text="Регистрация"
+            <VerticalStackLayout Spacing="15" Padding="0,20,0,0">
+                <Button Text="Зарегистрироваться"
                         Clicked="OnRegisterClicked"
                         BackgroundColor="Transparent"
                         TextColor="#512BD4"
                         BorderColor="#512BD4"
                         BorderWidth="1"
-                        HeightRequest="40" />
+                        CornerRadius="10"
+                        HeightRequest="45"/>
 
-                <!-- Забыли пароль -->
-                <Button Text="Забыли пароль?"
-                        Clicked="OnForgotPasswordClicked"
-                        BackgroundColor="Transparent"
-                        TextColor="#666666"
-                        HeightRequest="30"
-                        FontSize="12" />
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                    <Label Text="Забыли пароль?" 
+                           TextColor="#666666"
+                           FontSize="13"/>
+                    <Button Text="Восстановить"
+                            Clicked="OnForgotPasswordClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="#512BD4"
+                            Padding="0"
+                            FontSize="13"/>
+                </HorizontalStackLayout>
             </VerticalStackLayout>
 
-            <!-- Индикатор загрузки -->
             <ActivityIndicator x:Name="LoadingIndicator"
                                IsRunning="False"
                                IsVisible="False"
-                               HorizontalOptions="Center"
                                Color="#512BD4"
-                               Margin="0,20,0,0" />
+                               HorizontalOptions="Center"
+                               Margin="0,20,0,0"/>
+
+            <Frame BackgroundColor="#F5F5F5" 
+                   CornerRadius="10" 
+                   Padding="15"
+                   Margin="0,30,0,0"
+                   IsVisible="True">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Тестовые данные:" 
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#666666"/>
+                    <Label Text="Email: admin@example.com" 
+                           FontSize="11"
+                           TextColor="#666666"/>
+                    <Label Text="Пароль: admin" 
+                           FontSize="11"
+                           TextColor="#666666"/>
+                </VerticalStackLayout>
+            </Frame>
 
         </VerticalStackLayout>
     </ScrollView>
