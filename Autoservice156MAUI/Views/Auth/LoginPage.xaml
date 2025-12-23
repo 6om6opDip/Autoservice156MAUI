@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Autoservice156MAUI.Views.Auth.LoginPage"
+             Title="Вход в систему">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="30,40,30,30">
+
+            <!-- Заголовок -->
+            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Label Text="Автосервис 156" 
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#512BD4"
+                       HorizontalOptions="Center"/>
+
+                <Label Text="Вход в систему"
+                       FontSize="18"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+
+            <!-- Форма входа -->
+            <VerticalStackLayout Spacing="15">
+                <!-- Email -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Email" />
+                    <Entry x:Name="EmailEntry"
+                           Placeholder="example@mail.com"
+                           Keyboard="Email" />
+                </VerticalStackLayout>
+
+                <!-- Пароль -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Пароль" />
+                    <Entry x:Name="PasswordEntry"
+                           Placeholder="Введите пароль"
+                           IsPassword="True" />
+                </VerticalStackLayout>
+
+                <!-- Запомнить меня -->
+                <HorizontalStackLayout Spacing="10">
+                    <CheckBox x:Name="RememberMeCheckbox" 
+                              VerticalOptions="Center" />
+                    <Label Text="Запомнить меня" 
+                           VerticalOptions="Center" 
+                           VerticalTextAlignment="Center" />
+                </HorizontalStackLayout>
+
+                <!-- Сообщение об ошибке -->
+                <Label x:Name="ErrorMessageLabel"
+                       TextColor="Red"
+                       IsVisible="False"
+                       FontSize="12" />
+            </VerticalStackLayout>
+
+            <!-- Кнопки -->
+            <VerticalStackLayout Spacing="15" Padding="0,20,0,0">
+                <!-- Кнопка входа -->
+                <Button Text="Войти"
+                        Clicked="OnLoginClicked"
+                        BackgroundColor="#512BD4"
+                        TextColor="White"
+                        HeightRequest="50"
+                        FontSize="16" />
+
+                <!-- Ссылка на регистрацию -->
+                <Button Text="Регистрация"
+                        Clicked="OnRegisterClicked"
+                        BackgroundColor="Transparent"
+                        TextColor="#512BD4"
+                        BorderColor="#512BD4"
+                        BorderWidth="1"
+                        HeightRequest="40" />
+
+                <!-- Забыли пароль -->
+                <Button Text="Забыли пароль?"
+                        Clicked="OnForgotPasswordClicked"
+                        BackgroundColor="Transparent"
+                        TextColor="#666666"
+                        HeightRequest="30"
+                        FontSize="12" />
+            </VerticalStackLayout>
+
+            <!-- Индикатор загрузки -->
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               IsRunning="False"
+                               IsVisible="False"
+                               HorizontalOptions="Center"
+                               Color="#512BD4"
+                               Margin="0,20,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
