@@ -2,11 +2,98 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Autoservice156MAUI.Views.Client.ClientListPage"
-             Title="ClientListPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Клиенты">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Добавить" Clicked="OnAddClicked" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
+
+            <!-- Заголовок -->
+            <Label Text="📋 Список клиентов" 
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="#333333"/>
+
+            <!-- Поиск -->
+            <Frame Padding="15" 
+                   BorderColor="#E0E0E0" 
+                   CornerRadius="10"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Поиск клиентов"
+                           FontSize="14"
+                           TextColor="#666666"/>
+                    <Entry x:Name="SearchEntry"
+                           Placeholder="Введите имя, email или телефон..."
+                           TextChanged="OnSearchTextChanged"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Список клиентов -->
+            <CollectionView x:Name="ClientsCollection"
+                            SelectionMode="Single"
+                            SelectionChanged="OnClientSelected">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="15" 
+                               Margin="0,0,0,10"
+                               BorderColor="#E0E0E0"
+                               CornerRadius="10">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{Binding FullName}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#333333"/>
+
+                                <HorizontalStackLayout Spacing="15">
+                                    <Label Text="{Binding Email}"
+                                           FontSize="13"
+                                           TextColor="#512BD4"/>
+                                    <Label Text="•"
+                                           FontSize="13"
+                                           TextColor="#999999"/>
+                                    <Label Text="{Binding Phone}"
+                                           FontSize="13"
+                                           TextColor="#666666"/>
+                                </HorizontalStackLayout>
+
+                                <Label Text="{Binding Address}"
+                                       FontSize="12"
+                                       TextColor="#999999"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center"
+                                         VerticalOptions="Center"
+                                         Spacing="15"
+                                         Padding="40">
+                        <Label Text="📭"
+                               FontSize="40"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Клиенты не найдены"
+                               FontSize="16"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Добавьте первого клиента"
+                               FontSize="14"
+                               TextColor="#666666"
+                               HorizontalOptions="Center"/>
+                        <Button Text="Добавить клиента"
+                                Clicked="OnAddClicked"
+                                BackgroundColor="#512BD4"
+                                TextColor="White"
+                                CornerRadius="10"
+                                HeightRequest="45"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
 </ContentPage>

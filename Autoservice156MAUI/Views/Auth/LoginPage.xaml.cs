@@ -1,101 +1,104 @@
-using Autoservice156MAUI.ViewModels.Auth;
-
 namespace Autoservice156MAUI.Views.Auth;
 
 public partial class LoginPage : ContentPage
 {
-    private readonly LoginViewModel _viewModel;
+    private bool _isLoading = false;
 
-    public LoginPage(LoginViewModel viewModel)
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set
+        {
+            _isLoading = value;
+            OnPropertyChanged(nameof(IsLoading));
+        }
+    }
+
+    public LoginPage()
     {
         InitializeComponent();
-        _viewModel = viewModel;
 
-        // Установка тестовых данных
+        // Автозаполнение для теста на Windows
         EmailEntry.Text = "admin@example.com";
-        PasswordEntry.Text = "admin";
+        PasswordEntry.Text = "admin123";
     }
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
-        // Показываем индикатор
-        LoadingIndicator.IsRunning = true;
-        LoadingIndicator.IsVisible = true;
-        ErrorMessageLabel.IsVisible = false;
+        if (IsLoading) return;
 
-        // Блокируем UI
-        EmailEntry.IsEnabled = false;
-        PasswordEntry.IsEnabled = false;
-        RememberMeCheckbox.IsEnabled = false;
+        // Валидация
+        if (string.IsNullOrWhiteSpace(EmailEntry.Text))
+        {
+            ShowError("Введите email");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(PasswordEntry.Text))
+        {
+            ShowError("Введите пароль");
+            return;
+        }
+
+        IsLoading = true;
 
         try
         {
-            // Задержка для имитации сети
-            await Task.Delay(800);
+            // Имитация загрузки (на Windows можно без задержки)
+            await Task.Delay(500); // Удали эту строку для реального API
 
-            // Простая проверка (замени на реальную аутентизацию)
-            if (EmailEntry.Text == "admin@example.com" && PasswordEntry.Text == "admin")
-            {
-                // Успешный вход
-                await DisplayAlert("Успех", "Вход выполнен!", "OK");
+            // TODO: Заменить на реальный вызов API
+            // var authService = ... // Получить из DI
+            // var result = await authService.LoginAsync(...);
 
-                // Переходим на главную страницу
-                await Shell.Current.GoToAsync("///MainPage");
-            }
-            else if (EmailEntry.Text == "user@example.com" && PasswordEntry.Text == "user123")
+            // Временная заглушка - всегда успех для теста
+            bool loginSuccess = true;
+
+            if (loginSuccess)
             {
-                // Другой тестовый пользователь
-                await DisplayAlert("Успех", "Вход выполнен!", "OK");
-                await Shell.Current.GoToAsync("///MainPage");
+                // Успешный вход - переходим на главную
+                await Shell.Current.GoToAsync("///MainTabBar");
             }
             else
             {
-                // Ошибка входа
-                ErrorMessageLabel.Text = "Неверный email или пароль";
-                ErrorMessageLabel.IsVisible = true;
-
-                // Анимация ошибки
-                await ErrorMessageLabel.TranslateTo(-10, 0, 50);
-                await ErrorMessageLabel.TranslateTo(10, 0, 50);
-                await ErrorMessageLabel.TranslateTo(0, 0, 50);
+                ShowError("Неверный email или пароль");
             }
         }
         catch (Exception ex)
         {
-            ErrorMessageLabel.Text = $"Ошибка: {ex.Message}";
-            ErrorMessageLabel.IsVisible = true;
+            ShowError($"Ошибка: {ex.Message}");
         }
         finally
         {
-            // Восстанавливаем UI
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
-            EmailEntry.IsEnabled = true;
-            PasswordEntry.IsEnabled = true;
-            RememberMeCheckbox.IsEnabled = true;
+            IsLoading = false;
         }
+    }
+
+    private void SetLoading(bool loading)
+    {
+        IsLoading = loading;
+
+        // Блокируем UI при загрузке
+        EmailEntry.IsEnabled = !loading;
+        PasswordEntry.IsEnabled = !loading;
+        RememberMeCheckbox.IsEnabled = !loading;
+    }
+
+    private void ShowError(string message)
+    {
+        ErrorMessageLabel.Text = message;
+        ErrorMessageLabel.IsVisible = true;
     }
 
     private async void OnRegisterClicked(object sender, EventArgs e)
     {
         await DisplayAlert("Регистрация",
-            "Для регистрации обратитесь к администратору системы", "OK");
+            "Обратитесь к администратору для создания учетной записи", "OK");
     }
 
     private async void OnForgotPasswordClicked(object sender, EventArgs e)
     {
         await DisplayAlert("Восстановление пароля",
-            "Обратитесь к системному администратору", "OK");
-    }
-
-    // Автозаполнение для тестирования
-    private void OnEmailFocused(object sender, FocusEventArgs e)
-    {
-        // Можно добавить логику при фокусе
-    }
-
-    private void OnPasswordFocused(object sender, FocusEventArgs e)
-    {
-        // Можно добавить логику при фокусе
+            "Свяжитесь с системным администратором", "OK");
     }
 }

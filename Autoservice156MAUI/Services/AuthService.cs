@@ -2,129 +2,122 @@
 using Autoservice156MAUI.Models.DTO.Auth;
 using Autoservice156MAUI.Services.Interfaces;
 
-namespace Autoservice156MAUI.Services;
-
-public class AuthService : IAuthService
+namespace Autoservice156MAUI.Services
 {
-    private readonly IApiService _apiService;
-    private const string TokenKey = "autoservice_auth_token";
-    private const string UserEmailKey = "autoservice_user_email";
-    private const string UserDataKey = "autoservice_user_data";
-
-    public bool IsAuthenticated { get; private set; }
-    public string CurrentToken { get; private set; } = string.Empty;
-    public string CurrentUserEmail { get; private set; } = string.Empty;
-
-    public AuthService(IApiService apiService)
+    public class AuthService : IAuthService
     {
-        _apiService = apiService;
-        InitializeFromStorage();
-    }
+        private readonly IApiService _apiService;
+        private string _currentUserEmail;
+        private AuthResponse _currentAuthResponse;
 
-    private async void InitializeFromStorage()
-    {
-        var token = await SecureStorage.GetAsync(TokenKey);
-        var email = await SecureStorage.GetAsync(UserEmailKey);
+        public bool IsAuthenticated => !string.IsNullOrEmpty(CurrentToken);
+        public string CurrentToken => _currentAuthResponse?.Token;
+        public string CurrentUserEmail => _currentUserEmail;
 
-        if (!string.IsNullOrEmpty(token))
+        public AuthService(IApiService apiService)
         {
-            CurrentToken = token;
-            CurrentUserEmail = email ?? string.Empty;
-            IsAuthenticated = true;
-            _apiService.SetAuthToken(token);
+            _apiService = apiService;
+            LoadStoredData();
         }
-    }
 
-    public async Task<AuthResponse> LoginAsync(LoginRequest request)
-    {
-        try
+        private async void LoadStoredData()
         {
-            var response = await _apiService.PostAsync<AuthResponse>("auth/login", request);
-
-            if (!string.IsNullOrEmpty(response.Token))
+            try
             {
-                await SaveAuthData(response);
+                var token = await SecureStorage.Default.GetAsync("auth_token");
+                var email = await SecureStorage.Default.GetAsync("user_email");
+
+                if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(email))
+                {
+                    _currentUserEmail = email;
+                    _currentAuthResponse = new AuthResponse { Token = token };
+                    _apiService.SetAuthToken(token);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка загрузки данных: {ex.Message}");
+            }
+        }
+
+        public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest)
+        {
+            try
+            {
+                Console.WriteLine($"🔐 Попытка входа: {loginRequest.Email}");
+
+                var response = await _apiService.PostAsync<AuthResponse>("Auth/login", loginRequest);
+
+                if (!string.IsNullOrEmpty(response?.Token))
+                {
+                    Console.WriteLine($"✅ Вход успешен, токен получен");
+
+                    _currentAuthResponse = response;
+                    _currentUserEmail = loginRequest.Email;
+                    _apiService.SetAuthToken(response.Token);
+
+                    // Сохраняем email
+                    await SecureStorage.Default.SetAsync("user_email", loginRequest.Email);
+
+                    return response;
+                }
+
+                Console.WriteLine($"❌ Вход не удался: токен пустой");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Ошибка входа: {ex.Message}");
+                throw new Exception($"Ошибка входа: {ex.Message}");
+            }
+        }
+
+        public async Task<AuthResponse> RegisterAsync(RegisterRequest registerRequest)
+        {
+            try
+            {
+                Console.WriteLine($"🔐 Регистрация пользователя: {registerRequest.Email}");
+
+                var response = await _apiService.PostAsync<AuthResponse>("Auth/register", registerRequest);
+
+                Console.WriteLine($"✅ Регистрация успешна");
                 return response;
             }
-
-            throw new UnauthorizedAccessException("Неверные учетные данные");
-        }
-        catch (ApiException ex)
-        {
-            throw new UnauthorizedAccessException("Ошибка авторизации", ex);
-        }
-    }
-
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
-    {
-        try
-        {
-            var response = await _apiService.PostAsync<AuthResponse>("auth/register", request);
-
-            if (!string.IsNullOrEmpty(response.Token))
+            catch (Exception ex)
             {
-                await SaveAuthData(response);
-                return response;
+                Console.WriteLine($"❌ Ошибка регистрации: {ex.Message}");
+                throw new Exception($"Ошибка регистрации: {ex.Message}");
             }
-
-            throw new InvalidOperationException("Регистрация не удалась");
         }
-        catch (ApiException ex)
+
+        public async Task<bool> ValidateTokenAsync()
         {
-            throw new InvalidOperationException("Ошибка регистрации", ex);
+            try
+            {
+                if (string.IsNullOrEmpty(CurrentToken))
+                    return false;
+
+                // Можно проверить токен, отправив запрос к защищенному endpoint
+                var test = await _apiService.GetAsync<object>("Auth/validate");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
-    }
 
-    public async Task<bool> ValidateTokenAsync()
-    {
-        if (string.IsNullOrEmpty(CurrentToken))
-            return false;
-
-        try
+        public async Task LogoutAsync()
         {
-            // Простой запрос для проверки токена
-            await _apiService.GetAsync<object>("auth/validate");
-            return true;
+            _currentAuthResponse = null;
+            _currentUserEmail = null;
+            _apiService.ClearAuthToken();
+
+            // Используйте Remove вместо RemoveAsync
+            SecureStorage.Default.Remove("auth_token");
+            SecureStorage.Default.Remove("user_email");
+
+            Console.WriteLine("✅ Выход выполнен");
         }
-        catch
-        {
-            await LogoutAsync();
-            return false;
-        }
-    }
-
-    public async Task LogoutAsync()
-    {
-        IsAuthenticated = false;
-        CurrentToken = string.Empty;
-        CurrentUserEmail = string.Empty;
-
-        _apiService.ClearAuthToken();
-
-        SecureStorage.Remove(TokenKey);
-        SecureStorage.Remove(UserEmailKey);
-        SecureStorage.Remove(UserDataKey);
-    }
-
-    private async Task SaveAuthData(AuthResponse response)
-    {
-        CurrentToken = response.Token;
-        CurrentUserEmail = response.Email;
-        IsAuthenticated = true;
-
-        _apiService.SetAuthToken(response.Token);
-
-        await SecureStorage.SetAsync(TokenKey, response.Token);
-        await SecureStorage.SetAsync(UserEmailKey, response.Email);
-
-        // Сохраняем данные пользователя
-        var userData = JsonSerializer.Serialize(new
-        {
-            response.UserId,
-            response.FirstName,
-            response.LastName,
-            response.Role
-        });
-        await SecureStorage.SetAsync(UserDataKey, userData);
     }
 }

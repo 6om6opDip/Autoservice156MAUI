@@ -1,110 +1,99 @@
-﻿using System.Windows.Input;
-using Autoservice156MAUI.Models.DTO.Auth;
+﻿using Autoservice156MAUI.Models.DTO.Auth;
 using Autoservice156MAUI.Services.Interfaces;
 using Autoservice156MAUI.ViewModels.Base;
-using Autoservice156MAUI.Views.Auth;
+using System.Windows.Input;
 
-namespace Autoservice156MAUI.ViewModels.Auth;
-
-public class LoginViewModel : BaseViewModel
+namespace Autoservice156MAUI.ViewModels.Auth
 {
-    private readonly IAuthService _authService;
-    private string _email = string.Empty;
-    private string _password = string.Empty;
-    private bool _rememberMe = false;
-
-    public string Email
+    public class LoginViewModel : BaseViewModel
     {
-        get => _email;
-        set => SetProperty(ref _email, value);
-    }
+        private readonly IAuthService _authService;
 
-    public string Password
-    {
-        get => _password;
-        set => SetProperty(ref _password, value);
-    }
-
-    public bool RememberMe
-    {
-        get => _rememberMe;
-        set => SetProperty(ref _rememberMe, value);
-    }
-
-    public ICommand LoginCommand { get; }
-    public ICommand RegisterCommand { get; }
-    public ICommand ForgotPasswordCommand { get; }
-
-    public LoginViewModel(IAuthService authService)
-    {
-        _authService = authService;
-        Title = "Вход в систему";
-
-        // Для теста
-        Email = "test@example.com";
-        Password = "Test123!";
-
-        LoginCommand = new Command(async () => await LoginAsync());
-        RegisterCommand = new Command(async () => await RegisterAsync());
-        ForgotPasswordCommand = new Command(async () => await ForgotPasswordAsync());
-    }
-
-    private async Task LoginAsync()
-    {
-        if (IsBusy)
-            return;
-
-        if (string.IsNullOrWhiteSpace(Email))
+        private string _email = "admin@autoservice.com";
+        public string Email
         {
-            ErrorMessage = "Введите email";
-            return;
+            get => _email;
+            set => SetProperty(ref _email, value);
         }
 
-        if (string.IsNullOrWhiteSpace(Password))
+        private string _password = "admin123";
+        public string Password
         {
-            ErrorMessage = "Введите пароль";
-            return;
+            get => _password;
+            set => SetProperty(ref _password, value);
         }
 
-        try
-        {
-            IsBusy = true;
-            ErrorMessage = string.Empty;
+        public ICommand LoginCommand { get; }
+        public ICommand NavigateToRegisterCommand { get; }
 
-            var request = new LoginRequest
+        public LoginViewModel(IAuthService authService)
+        {
+            _authService = authService;
+
+            LoginCommand = new Command(async () => await LoginAsync());
+            NavigateToRegisterCommand = new Command(async () =>
+                await Shell.Current.GoToAsync("//RegisterPage"));
+        }
+
+        private async Task LoginAsync()
+        {
+            if (IsBusy) return;
+
+            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
-                Email = Email,
-                Password = Password
-            };
+                await Application.Current.MainPage.DisplayAlert(
+                    "Ошибка",
+                    "Введите email и пароль",
+                    "OK");
+                return;
+            }
 
-            var response = await _authService.LoginAsync(request);
+            IsBusy = true;
 
-            // Успешный вход
-            await DisplayAlert("Успех", "Вход выполнен успешно!", "OK");
-            await NavigateToAsync("///MainTabBar");
-        }
-        catch (UnauthorizedAccessException)
-        {
-            ErrorMessage = "Неверный email или пароль";
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Ошибка входа: {ex.Message}";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
+            try
+            {
+                Console.WriteLine($"🔐 Начало входа...");
 
-    private async Task RegisterAsync()
-    {
-        await NavigateToAsync(nameof(RegisterPage));
-    }
+                var loginRequest = new LoginRequest
+                {
+                    Email = Email,
+                    Password = Password
+                };
 
-    private async Task ForgotPasswordAsync()
-    {
-        await DisplayAlert("Восстановление пароля",
-            "Для восстановления пароля обратитесь к администратору", "OK");
+                var authResponse = await _authService.LoginAsync(loginRequest);
+
+                if (authResponse != null && !string.IsNullOrEmpty(authResponse.Token))
+                {
+                    Console.WriteLine($"✅ Вход успешен! Переход к списку клиентов...");
+
+                    // Переход на главную страницу
+                    await Shell.Current.GoToAsync("//ClientListPage");
+
+                    // Очистка полей
+                    Email = string.Empty;
+                    Password = string.Empty;
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Ошибка",
+                        "Неверный email или пароль",
+                        "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Ошибка: {ex.Message}");
+
+                await Application.Current.MainPage.DisplayAlert(
+                    "Ошибка",
+                    $"Не удалось войти: {ex.Message}",
+                    "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
     }
 }

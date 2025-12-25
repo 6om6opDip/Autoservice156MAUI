@@ -11,4 +11,5 @@ public interface IApiService
     void SetAuthToken(string token);
     void ClearAuthToken();
     bool HasToken { get; }
+    Task<bool> TestConnectionAsync();
 }
