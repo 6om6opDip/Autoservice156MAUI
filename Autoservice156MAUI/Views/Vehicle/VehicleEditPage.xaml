@@ -4,54 +4,141 @@
              x:Class="Autoservice156MAUI.Views.Vehicle.VehicleEditPage"
              Title="Добавить транспорт">
 
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Назад" Clicked="OnCancelClicked" />
-    </ContentPage.ToolbarItems>
+    <!-- УБРАТЬ Shell.NavBarIsVisible="False" -->
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="15" Padding="20">
-
-            <Label Text="Форма добавления транспорта"
-                   FontSize="18"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center" />
-
-            <Entry x:Name="BrandEntry"
-                   Placeholder="Марка *"
-                   Margin="0,10,0,0" />
-
-            <Entry x:Name="ModelEntry"
-                   Placeholder="Модель *" />
-
-            <Entry x:Name="YearEntry"
-                   Placeholder="Год"
-                   Keyboard="Numeric" />
-
-            <Entry x:Name="LicensePlateEntry"
-                   Placeholder="Номерной знак" />
-
-            <Entry x:Name="VINEntry"
-                   Placeholder="VIN номер" />
-
-            <Grid ColumnDefinitions="*,*" 
-                  ColumnSpacing="10" 
-                  Padding="0,20,0,0"
-                  HorizontalOptions="Fill">
+    <Grid RowDefinitions="Auto,*">
+        <!-- Своя шапка с кнопкой НАЗАД -->
+        <Frame Grid.Row="0" 
+               BackgroundColor="#512BD4" 
+               Padding="15,10"
+               CornerRadius="0"
+               HasShadow="True">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- Кнопка НАЗАД -->
                 <Button Grid.Column="0"
-                        Text="Отмена"
-                        Clicked="OnCancelClicked"
-                        BackgroundColor="LightGray"
-                        TextColor="Black"
-                        HeightRequest="45" />
-
-                <Button Grid.Column="1"
-                        Text="Сохранить"
-                        Clicked="OnSaveClicked"
-                        BackgroundColor="#512BD4"
+                        Text="←"
+                        Clicked="OnBackButtonClicked"
+                        BackgroundColor="Transparent"
                         TextColor="White"
-                        HeightRequest="45" />
-            </Grid>
+                        FontSize="24"
+                        WidthRequest="40"
+                        HeightRequest="40"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Center" />
 
-        </VerticalStackLayout>
-    </ScrollView>
+                <!-- Заголовок -->
+                <Label Grid.Column="1"
+                       Text="Добавить транспорт"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center" />
+            </Grid>
+        </Frame>
+
+        <!-- Основной контент -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="15" Padding="20">
+
+                <!-- Марка -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Марка *"
+                           FontSize="14"
+                           TextColor="#333333"
+                           FontAttributes="Bold" />
+                    <Entry x:Name="BrandEntry"
+                           Placeholder="Например: Toyota"
+                           BackgroundColor="#F8F8F8"
+                           HeightRequest="45"
+                           ClearButtonVisibility="WhileEditing" />
+                </VerticalStackLayout>
+
+                <!-- Модель -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Модель *"
+                           FontSize="14"
+                           TextColor="#333333"
+                           FontAttributes="Bold" />
+                    <Entry x:Name="ModelEntry"
+                           Placeholder="Например: Camry"
+                           BackgroundColor="#F8F8F8"
+                           HeightRequest="45"
+                           ClearButtonVisibility="WhileEditing" />
+                </VerticalStackLayout>
+
+                <!-- Год выпуска -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Год выпуска"
+                           FontSize="14"
+                           TextColor="#333333"
+                           FontAttributes="Bold" />
+                    <Entry x:Name="YearEntry"
+                           Placeholder="Например: 2020"
+                           BackgroundColor="#F8F8F8"
+                           HeightRequest="45"
+                           Keyboard="Numeric"
+                           ClearButtonVisibility="WhileEditing" />
+                </VerticalStackLayout>
+
+                <!-- Номерной знак -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Номерной знак"
+                           FontSize="14"
+                           TextColor="#333333"
+                           FontAttributes="Bold" />
+                    <Entry x:Name="LicensePlateEntry"
+                           Placeholder="Например: А123БВ77"
+                           BackgroundColor="#F8F8F8"
+                           HeightRequest="45"
+                           ClearButtonVisibility="WhileEditing"
+                           TextTransform="Uppercase" />
+                </VerticalStackLayout>
+
+                <!-- VIN номер -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="VIN номер"
+                           FontSize="14"
+                           TextColor="#333333"
+                           FontAttributes="Bold" />
+                    <Entry x:Name="VINEntry"
+                           Placeholder="17-значный номер"
+                           BackgroundColor="#F8F8F8"
+                           HeightRequest="45"
+                           ClearButtonVisibility="WhileEditing"
+                           TextTransform="Uppercase" />
+                </VerticalStackLayout>
+
+                <!-- Кнопки -->
+                <Grid ColumnDefinitions="*,*" 
+                      ColumnSpacing="15" 
+                      Padding="0,30,0,0"
+                      HorizontalOptions="Fill">
+
+                    <!-- Кнопка Отмена -->
+                    <Button Grid.Column="0"
+                            Text="Отмена"
+                            Clicked="OnCancelClicked"
+                            BackgroundColor="#E2E8F0"
+                            TextColor="#2D3748"
+                            HeightRequest="50"
+                            CornerRadius="10"
+                            FontSize="16"
+                            FontAttributes="Bold" />
+
+                    <!-- Кнопка Сохранить -->
+                    <Button Grid.Column="1"
+                            Text="Сохранить"
+                            Clicked="OnSaveClicked"
+                            BackgroundColor="#512BD4"
+                            TextColor="White"
+                            HeightRequest="50"
+                            CornerRadius="10"
+                            FontSize="16"
+                            FontAttributes="Bold" />
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

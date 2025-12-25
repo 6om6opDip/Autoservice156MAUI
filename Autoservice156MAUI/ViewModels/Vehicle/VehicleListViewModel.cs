@@ -221,28 +221,28 @@ namespace Autoservice156MAUI.ViewModels.Vehicle
         }
 
 
-        private async Task AddVehicleAsync()
-        {
-            try
-            {
-                Console.WriteLine("🚗 Кнопка 'Добавить транспорт' нажата (из ViewModel)");
+		private async Task AddVehicleAsync()
+		{
+			try
+			{
+				Console.WriteLine("🚗 Кнопка 'Добавить транспорт' нажата (из ViewModel)");
 
-                // Используем метод навигации из BaseViewModel
-                await NavigateToAsync($"//VehicleEditPage");
+				// ВАЖНО: Открываем как модальное окно
+				await Shell.Current.GoToAsync(nameof(VehicleEditPage), true);
 
-                Console.WriteLine("✅ Навигация выполнена");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"💥 Ошибка навигации: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert(
-                    "Ошибка",
-                    $"Не удалось открыть форму: {ex.Message}",
-                    "OK");
-            }
-        }
+				Console.WriteLine("✅ Навигация выполнена");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"💥 Ошибка навигации: {ex.Message}");
+				await Application.Current.MainPage.DisplayAlert(
+					"Ошибка",
+					$"Не удалось открыть форму: {ex.Message}",
+					"OK");
+			}
+		}
 
-        private async Task RefreshAsync()
+		private async Task RefreshAsync()
         {
             await LoadVehiclesAsync();
         }

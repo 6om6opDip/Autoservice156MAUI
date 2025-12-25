@@ -3,155 +3,232 @@ using System.Text.Json;
 
 namespace Autoservice156MAUI.Views.Vehicle
 {
-    public partial class VehicleEditPage : ContentPage
-    {
-        public VehicleEditPage()
-        {
-            InitializeComponent();
-        }
+	public partial class VehicleEditPage : ContentPage
+	{
+		private bool _hasUnsavedChanges = false;
 
-        private async void OnSaveClicked(object sender, EventArgs e)
-        {
-            try
-            {
-                // 1. Получаем данные
-                string brand = BrandEntry.Text?.Trim();
-                string model = ModelEntry.Text?.Trim();
-                string yearText = YearEntry.Text?.Trim();
-                string licensePlate = LicensePlateEntry.Text?.Trim();
-                string vin = VINEntry.Text?.Trim();
+		public VehicleEditPage()
+		{
+			InitializeComponent();
 
-                // 2. Проверяем обязательные поля
-                if (string.IsNullOrEmpty(brand))
-                {
-                    await DisplayAlert("Ошибка", "Введите марку транспорта", "OK");
-                    BrandEntry.Focus();
-                    return;
-                }
+			// Устанавливаем фокус на первое поле при загрузке
+			BrandEntry.Focus();
 
-                if (string.IsNullOrEmpty(model))
-                {
-                    await DisplayAlert("Ошибка", "Введите модель транспорта", "OK");
-                    ModelEntry.Focus();
-                    return;
-                }
+			// Отслеживаем изменения
+			BrandEntry.TextChanged += OnEntryTextChanged;
+			ModelEntry.TextChanged += OnEntryTextChanged;
+			YearEntry.TextChanged += OnEntryTextChanged;
+			LicensePlateEntry.TextChanged += OnEntryTextChanged;
+			VINEntry.TextChanged += OnEntryTextChanged;
+		}
 
-                // 3. Парсим год
-                int year = 2024;
-                if (!string.IsNullOrEmpty(yearText) && int.TryParse(yearText, out int parsedYear))
-                {
-                    year = parsedYear;
-                }
+		private void OnEntryTextChanged(object sender, TextChangedEventArgs e)
+		{
+			_hasUnsavedChanges = true;
+		}
 
-                // 4. Создаем новый транспорт
-                var newVehicle = new VehicleDto
-                {
-                    Id = (int)DateTime.Now.Ticks, // Временный ID
-                    Brand = brand,
-                    Model = model,
-                    Year = year,
-                    LicensePlate = string.IsNullOrEmpty(licensePlate) ? "Не указан" : licensePlate,
-                    VIN = string.IsNullOrEmpty(vin) ? "Не указан" : vin
-                };
+		// Кнопка "←" в шапке
+		private async void OnBackButtonClicked(object sender, EventArgs e)
+		{
+			Console.WriteLine("← Нажата кнопка НАЗАД в шапке");
+			await CheckAndClose();
+		}
 
-                // 5. Сохраняем локально
-                SaveVehicleToLocalStorage(newVehicle);
+		// Кнопка "Отмена"
+		private async void OnCancelClicked(object sender, EventArgs e)
+		{
+			Console.WriteLine("🚫 Нажата кнопка Отмена");
+			await CheckAndClose();
+		}
 
-                // 6. Показываем сообщение
-                await DisplayAlert("Успех",
-                    $"Транспорт сохранен!\n" +
-                    $"{newVehicle.Brand} {newVehicle.Model}\n" +
-                    $"Гос. номер: {newVehicle.LicensePlate}",
-                    "OK");
+		private async Task CheckAndClose()
+		{
+			// Проверяем есть ли несохраненные изменения
+			if (_hasUnsavedChanges)
+			{
+				bool answer = await DisplayAlert(
+					"Подтверждение",
+					"Есть несохраненные изменения. Выйти без сохранения?",
+					"Да", "Нет");
 
-                // 7. Очищаем поля
-                BrandEntry.Text = "";
-                ModelEntry.Text = "";
-                YearEntry.Text = "";
-                LicensePlateEntry.Text = "";
-                VINEntry.Text = "";
+				if (!answer) return;
+			}
 
-                // 8. Возвращаемся назад
-                await Navigation.PopAsync();
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Ошибка", $"Не удалось сохранить: {ex.Message}", "OK");
-            }
-        }
+			// Закрываем через Shell (так как открывали через Shell)
+			await Shell.Current.GoToAsync("..");
+		}
 
-        private void SaveVehicleToLocalStorage(VehicleDto newVehicle)
-        {
-            try
-            {
-                Console.WriteLine("💾 Начинаем сохранение транспорта...");
+		private bool ValidateForm()
+		{
+			bool isValid = true;
+			string errorMessage = "";
 
-                // 1. Загружаем существующие транспорты
-                var vehiclesJson = Preferences.Default.Get("local_vehicles", "[]");
-                Console.WriteLine($"📁 JSON из хранилища: {vehiclesJson}");
+			if (string.IsNullOrWhiteSpace(BrandEntry.Text))
+			{
+				errorMessage += "• Введите марку транспорта\n";
+				isValid = false;
+			}
 
-                var vehicles = new List<VehicleDto>();
+			if (string.IsNullOrWhiteSpace(ModelEntry.Text))
+			{
+				errorMessage += "• Введите модель транспорта\n";
+				isValid = false;
+			}
 
-                // 2. Парсим JSON (если он не пустой)
-                if (!string.IsNullOrEmpty(vehiclesJson) && vehiclesJson != "[]")
-                {
-                    try
-                    {
-                        vehicles = JsonSerializer.Deserialize<List<VehicleDto>>(vehiclesJson) ?? new List<VehicleDto>();
-                        Console.WriteLine($"📊 Загружено {vehicles.Count} существующих транспортов");
-                    }
-                    catch (JsonException jsonEx)
-                    {
-                        Console.WriteLine($"⚠️ Ошибка парсинга JSON: {jsonEx.Message}");
-                        Console.WriteLine($"⚠️ Создаем новый список");
-                        vehicles = new List<VehicleDto>();
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("📁 Хранилище пустое, создаем новый список");
-                }
+			if (!string.IsNullOrWhiteSpace(YearEntry.Text))
+			{
+				if (!int.TryParse(YearEntry.Text, out int year) ||
+					year < 1900 ||
+					year > DateTime.Now.Year + 1)
+				{
+					errorMessage += "• Введите корректный год (1900-текущий)\n";
+					isValid = false;
+				}
+			}
 
-                // 3. Проверяем, нет ли такого же транспорта
-                bool alreadyExists = vehicles.Any(v =>
-                    v.Brand == newVehicle.Brand &&
-                    v.Model == newVehicle.Model &&
-                    v.LicensePlate == newVehicle.LicensePlate);
+			if (!string.IsNullOrWhiteSpace(VINEntry.Text) &&
+				VINEntry.Text.Trim().Length != 17)
+			{
+				errorMessage += "• VIN должен содержать 17 символов\n";
+				isValid = false;
+			}
 
-                if (alreadyExists)
-                {
-                    Console.WriteLine("⚠️ Такой транспорт уже существует");
-                    return;
-                }
+			if (!isValid)
+			{
+				DisplayAlert("Ошибка заполнения", errorMessage.Trim(), "OK");
+			}
 
-                // 4. Добавляем новый транспорт
-                vehicles.Add(newVehicle);
-                Console.WriteLine($"➕ Добавлен новый транспорт: {newVehicle.Brand} {newVehicle.Model}");
-                Console.WriteLine($"📊 Теперь всего: {vehicles.Count} транспортов");
+			return isValid;
+		}
 
-                // 5. Сохраняем обратно
-                var updatedJson = JsonSerializer.Serialize(vehicles);
-                Console.WriteLine($"💾 Сохраняем JSON: {updatedJson}");
+		private async void OnSaveClicked(object sender, EventArgs e)
+		{
+			try
+			{
+				if (!ValidateForm())
+				{
+					return;
+				}
 
-                Preferences.Default.Set("local_vehicles", updatedJson);
+				// Получаем данные
+				string brand = BrandEntry.Text?.Trim();
+				string model = ModelEntry.Text?.Trim();
+				string yearText = YearEntry.Text?.Trim();
+				string licensePlate = LicensePlateEntry.Text?.Trim()?.ToUpper();
+				string vin = VINEntry.Text?.Trim()?.ToUpper();
 
-                // 6. Дополнительная проверка
-                var savedJson = Preferences.Default.Get("local_vehicles", "[]");
-                var savedCount = JsonSerializer.Deserialize<List<VehicleDto>>(savedJson)?.Count ?? 0;
+				// Парсим год
+				int year = DateTime.Now.Year;
+				if (!string.IsNullOrEmpty(yearText) && int.TryParse(yearText, out int parsedYear))
+				{
+					year = parsedYear;
+				}
 
-                Console.WriteLine($"✅ Проверка сохранения: {savedCount} транспортов в хранилище");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Критическая ошибка сохранения: {ex.Message}");
-                Console.WriteLine($"📌 StackTrace: {ex.StackTrace}");
-            }
-        }
+				// Создаем транспорт
+				var newVehicle = new VehicleDto
+				{
+					Id = GenerateId(),
+					Brand = brand,
+					Model = model,
+					Year = year,
+					LicensePlate = string.IsNullOrEmpty(licensePlate) ? "Не указан" : licensePlate,
+					VIN = string.IsNullOrEmpty(vin) ? "Не указан" : vin
+				};
 
-        private async void OnCancelClicked(object sender, EventArgs e)
-        {
-            // Просто закрываем страницу
-            await Navigation.PopAsync();
-        }
-    }
+				// Сохраняем локально
+				SaveVehicleToLocalStorage(newVehicle);
+
+				// Показываем сообщение
+				await DisplayAlert("Успех",
+					$"Транспорт сохранен!\n" +
+					$"{newVehicle.Brand} {newVehicle.Model}\n" +
+					$"Гос. номер: {newVehicle.LicensePlate}",
+					"OK");
+
+				// Сбрасываем флаг
+				_hasUnsavedChanges = false;
+
+				// Закрываем страницу через Shell
+				await Shell.Current.GoToAsync("..");
+
+			}
+			catch (Exception ex)
+			{
+				await DisplayAlert("Ошибка", $"Не удалось сохранить: {ex.Message}", "OK");
+			}
+		}
+
+		private int GenerateId()
+		{
+			return Math.Abs(Guid.NewGuid().GetHashCode());
+		}
+
+		private void SaveVehicleToLocalStorage(VehicleDto newVehicle)
+		{
+			try
+			{
+				var vehiclesJson = Preferences.Default.Get("local_vehicles", "[]");
+				var vehicles = new List<VehicleDto>();
+
+				if (!string.IsNullOrEmpty(vehiclesJson) && vehiclesJson != "[]")
+				{
+					try
+					{
+						vehicles = JsonSerializer.Deserialize<List<VehicleDto>>(vehiclesJson)
+							?? new List<VehicleDto>();
+					}
+					catch (JsonException)
+					{
+						vehicles = new List<VehicleDto>();
+					}
+				}
+
+				// Проверяем на дубликаты
+				bool alreadyExists = vehicles.Any(v =>
+					v.Brand == newVehicle.Brand &&
+					v.Model == newVehicle.Model &&
+					v.LicensePlate == newVehicle.LicensePlate);
+
+				if (alreadyExists)
+				{
+					throw new Exception("Транспорт с такими данными уже существует");
+				}
+
+				// Добавляем и сохраняем
+				vehicles.Add(newVehicle);
+				var updatedJson = JsonSerializer.Serialize(vehicles);
+				Preferences.Default.Set("local_vehicles", updatedJson);
+
+				Console.WriteLine($"✅ Транспорт сохранен: {newVehicle.Brand} {newVehicle.Model}");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"❌ Ошибка сохранения: {ex.Message}");
+				throw;
+			}
+		}
+
+		// Обработка аппаратной кнопки "Назад"
+		protected override bool OnBackButtonPressed()
+		{
+			Device.BeginInvokeOnMainThread(async () =>
+			{
+				await CheckAndClose();
+			});
+
+			return true;
+		}
+
+		// Очистка
+		protected override void OnDisappearing()
+		{
+			base.OnDisappearing();
+
+			BrandEntry.TextChanged -= OnEntryTextChanged;
+			ModelEntry.TextChanged -= OnEntryTextChanged;
+			YearEntry.TextChanged -= OnEntryTextChanged;
+			LicensePlateEntry.TextChanged -= OnEntryTextChanged;
+			VINEntry.TextChanged -= OnEntryTextChanged;
+		}
+	}
 }

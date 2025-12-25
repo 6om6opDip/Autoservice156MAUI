@@ -9,10 +9,11 @@
        Title="Автосервис"
        FlyoutBehavior="Disabled">
 
+    <!-- Только LoginPage остается, так как это начальная страница -->
     <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate auth:LoginPage}" />
-    <ShellContent Route="ServiceEditPage" ContentTemplate="{DataTemplate service:ServiceEditPage}" />
-    <ShellContent Route="VehicleEditPage" ContentTemplate="{DataTemplate vehicle:VehicleEditPage}" />
-    <ShellContent Route="VehicleDetailsPage" ContentTemplate="{DataTemplate vehicle:VehicleDetailsPage}" />
+
+    <!-- VehicleDetailsPage тоже удаляем, если она открывается через навигацию -->
+    <!-- <ShellContent Route="VehicleDetailsPage" ContentTemplate="{DataTemplate vehicle:VehicleDetailsPage}" /> -->
 
     <TabBar Route="MainTabBar">
 
