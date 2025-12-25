@@ -17,9 +17,6 @@ namespace Autoservice156MAUI.Services
 
         public ApiService()
         {
-#if ANDROID
-            _baseUrl = "http://10.0.2.2:5136/api/";
-#endif
 
             _httpClient = new HttpClient(new HttpClientHandler
             {
@@ -199,12 +196,54 @@ namespace Autoservice156MAUI.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_baseUrl}Auth/test");
-                return response.IsSuccessStatusCode;
+                Console.WriteLine($"🔗 Проверка API: {_baseUrl}Auth/test");
+
+                // Создаем запрос БЕЗ авторизационного заголовка
+                using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUrl}Auth/test");
+
+                // Временно удаляем токен для тестового запроса
+                var originalAuth = _httpClient.DefaultRequestHeaders.Authorization;
+                _httpClient.DefaultRequestHeaders.Authorization = null;
+
+                try
+                {
+                    var response = await _httpClient.SendAsync(request);
+
+                    Console.WriteLine($"📡 Статус: {response.StatusCode} ({(int)response.StatusCode})");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"✅ API ответило: {content}");
+                        return true;
+                    }
+                    else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        Console.WriteLine("⚠️ 401 Unauthorized: Добавьте [AllowAnonymous] к Auth/test в API");
+                        return false;
+                    }
+                    else
+                    {
+                        var error = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"❌ Ошибка API: {error}");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    // Восстанавливаем оригинальный токен
+                    _httpClient.DefaultRequestHeaders.Authorization = originalAuth;
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"❌ Ошибка HTTP: {ex.Message}");
+                Console.WriteLine($"📌 Проверьте:\n1. API запущен на localhost:5136\n2. CORS настроен\n3. Брандмауэр не блокирует порт");
+                return false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Ошибка подключения к API: {ex.Message}");
+                Console.WriteLine($"💥 Ошибка: {ex.Message}");
                 return false;
             }
         }
@@ -215,3 +254,8 @@ namespace Autoservice156MAUI.Services
         public ApiException(string message) : base(message) { }
     }
 }
+
+
+
+
+

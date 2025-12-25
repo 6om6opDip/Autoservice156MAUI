@@ -87,6 +87,9 @@
 	  <MauiXaml Update="Views\Service\ServiceBookingPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\Service\ServiceEditPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Service\ServiceListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -106,5 +109,13 @@
 	    <Version>1.0.5</Version>
 	  </PackageReference>
 	</ItemGroup>
+	<ItemGroup>
+		<None Remove="appsettings.json" />
+	</ItemGroup>
 
+	<ItemGroup>
+		<EmbeddedResource Include="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
 </Project>

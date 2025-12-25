@@ -9,13 +9,11 @@
        Title="Автосервис"
        FlyoutBehavior="Disabled">
 
-    <!-- Стартовая страница - логин -->
-    <ShellContent
-        Title="Вход"
-        ContentTemplate="{DataTemplate auth:LoginPage}"
-        Route="LoginPage" />
+    <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate auth:LoginPage}" />
+    <ShellContent Route="ServiceEditPage" ContentTemplate="{DataTemplate service:ServiceEditPage}" />
+    <ShellContent Route="VehicleEditPage" ContentTemplate="{DataTemplate vehicle:VehicleEditPage}" />
+    <ShellContent Route="VehicleDetailsPage" ContentTemplate="{DataTemplate vehicle:VehicleDetailsPage}" />
 
-    <!-- Главный TabBar после входа -->
     <TabBar Route="MainTabBar">
 
         <Tab Title="Клиенты" Icon="people.png">

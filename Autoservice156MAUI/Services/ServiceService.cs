@@ -83,7 +83,8 @@ public class ServiceService : IServiceService
         try
         {
             var allServices = await GetAllServicesAsync();
-            return allServices.Where(s => s.IsActive);
+
+            return allServices.Where(s => s.Status == "Active");
         }
         catch (ApiException ex)
         {

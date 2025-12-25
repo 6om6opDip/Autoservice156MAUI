@@ -1,16 +1,62 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:Autoservice156MAUI.ViewModels.Service"
              x:Class="Autoservice156MAUI.Views.Service.ServiceListPage"
-             Title="ServiceListPage">
-    <VerticalStackLayout HorizontalOptions="Center" 
-                         VerticalOptions="Center"
-                         Spacing="20">
-        <Label Text="🚗" FontSize="60"/>
-        <Label Text="Страница транспорта" 
-               FontSize="20"
-               FontAttributes="Bold"/>
-        <Label Text="Здесь будет список транспортных средств"
-               TextColor="#666666"/>
-    </VerticalStackLayout>
-</ContentPage>
+             Title="Услуги">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Добавить" Command="{Binding AddServiceCommand}" />
+        <ToolbarItem Text="⟳" Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Frame Grid.Row="0" Margin="10" Padding="15" CornerRadius="10" BackgroundColor="#512BD4">
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="🔧 Услуги автосервиса" FontSize="18" FontAttributes="Bold" TextColor="White" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Frame>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="10" Padding="10">
+                <SearchBar Placeholder="Поиск услуг..." Text="{Binding SearchText}" Margin="0,0,0,10"/>
+                <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
+                    <CollectionView ItemsSource="{Binding FilteredServices}" SelectionMode="Single" SelectedItem="{Binding SelectedService}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Padding="15" Margin="0,0,0,10" BorderColor="#E0E0E0" CornerRadius="10" BackgroundColor="White">
+                                    <VerticalStackLayout Spacing="8">
+                                        <HorizontalStackLayout Spacing="10">
+                                            <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" TextColor="#333333" VerticalOptions="Center"/>
+                                            <Frame Padding="6,2" CornerRadius="4" BackgroundColor="{Binding StatusColor}">
+                                                <Label Text="{Binding StatusText}" FontSize="10" TextColor="White"/>
+                                            </Frame>
+                                        </HorizontalStackLayout>
+                                        <Label Text="{Binding Description}" FontSize="13" TextColor="#666666" LineBreakMode="WordWrap" MaxLines="2"/>
+                                        <HorizontalStackLayout Spacing="15">
+                                            <Label Text="{Binding Price, StringFormat='Цена: {0}₽'}" FontSize="13" FontAttributes="Bold" TextColor="#512BD4"/>
+                                            <Label Text="•" FontSize="13" TextColor="#999999"/>
+                                            <Label Text="{Binding DurationMinutes, StringFormat='Длительность: {0} мин'}" FontSize="13" TextColor="#666666"/>
+                                        </HorizontalStackLayout>
+                                        <Label Text="{Binding Category}" FontSize="12" TextColor="#999999"/>
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="15" Padding="40">
+                                <Label Text="🔧" FontSize="40" HorizontalOptions="Center"/>
+                                <Label Text="Услуги не найдены" FontSize="16" HorizontalOptions="Center"/>
+                                <Button Text="Добавить услугу" Clicked="OnAddServiceClicked" BackgroundColor="#512BD4" TextColor="White" CornerRadius="10" HeightRequest="45"/>
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+                </RefreshView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Grid.RowSpan="3" HorizontalOptions="Center" VerticalOptions="Center" Color="#512BD4"/>
+        <Label Text="{Binding ErrorMessage}" Grid.Row="2" Margin="20" TextColor="Red" IsVisible="{Binding HasError}" HorizontalOptions="Center"/>
+    </Grid>
+</ContentPage>  

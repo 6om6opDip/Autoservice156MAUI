@@ -10,6 +10,8 @@ using Autoservice156MAUI.Views.Client;
 using Autoservice156MAUI.Views.Vehicle;
 using Autoservice156MAUI.Views.Service;
 using CommunityToolkit.Maui;
+using Microsoft.Extensions.Configuration;
+using System.Reflection;
 
 namespace Autoservice156MAUI;
 public static class MauiProgram
@@ -17,20 +19,52 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-        builder.UseMauiApp<App>().ConfigureFonts(fonts =>
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            })
+            .UseMauiCommunityToolkit();
+
+        // Загружаем конфигурацию из appsettings.json
+        var assembly = typeof(App).Assembly;
+        using var stream = assembly.GetManifestResourceStream("Autoservice156MAUI.appsettings.json");
+
+        if (stream != null)
         {
-            fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-            fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-        }).UseMauiCommunityToolkit();
+            var config = new ConfigurationBuilder()
+                .AddJsonStream(stream)
+                .Build();
+
+            builder.Configuration.AddConfiguration(config);
+        }
+        else
+        {
+            Console.WriteLine("⚠️ appsettings.json не найден как EmbeddedResource");
+        }
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
+
         // Регистрация сервисов
-        builder.Services.AddSingleton<IApiService, ApiService>();
-        builder.Services.AddSingleton<IAuthService, AuthService>();
-        builder.Services.AddSingleton<IClientService, ClientService>();
-        builder.Services.AddSingleton<IVehicleService, VehicleService>();
+        builder.Services.AddSingleton<ApiService>();
+        builder.Services.AddSingleton<IApiService>(sp => sp.GetRequiredService<ApiService>());
+        builder.Services.AddSingleton<AuthService>();
+        builder.Services.AddSingleton<IAuthService>(sp => sp.GetRequiredService<AuthService>());
+        builder.Services.AddSingleton<VehicleService>();
+        builder.Services.AddSingleton<IVehicleService>(sp => sp.GetRequiredService<VehicleService>());
+        builder.Services.AddSingleton<ClientService>();
+        builder.Services.AddSingleton<IClientService>(sp => sp.GetRequiredService<ClientService>());
+        builder.Services.AddSingleton<ServiceService>();
+        builder.Services.AddSingleton<IServiceService>(sp => sp.GetRequiredService<ServiceService>());
         builder.Services.AddSingleton<IServiceService, ServiceService>();
+        builder.Services.AddSingleton<ServiceListViewModel>();
+        builder.Services.AddSingleton<ServiceListPage>();
+        builder.Services.AddSingleton<ServiceEditPage>();
+
         // Регистрация ViewModels
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<RegisterViewModel>();
@@ -42,6 +76,7 @@ public static class MauiProgram
         builder.Services.AddTransient<VehicleEditViewModel>();
         builder.Services.AddTransient<ServiceListViewModel>();
         builder.Services.AddTransient<ServiceDetailsViewModel>();
+
         // Регистрация Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<RegisterPage>();
@@ -52,6 +87,7 @@ public static class MauiProgram
         builder.Services.AddTransient<VehicleDetailsPage>();
         builder.Services.AddTransient<VehicleEditPage>();
         builder.Services.AddTransient<ServiceListPage>();
+
         return builder.Build();
     }
 }

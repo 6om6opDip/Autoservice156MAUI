@@ -53,18 +53,6 @@ public abstract class BaseViewModel : INotifyPropertyChanged
         return true;
     }
 
-    protected virtual async Task NavigateToAsync(string route, IDictionary<string, object> parameters = null)
-    {
-        if (parameters == null)
-        {
-            await Shell.Current.GoToAsync(route);
-        }
-        else
-        {
-            await Shell.Current.GoToAsync(route, parameters);
-        }
-    }
-
     protected virtual async Task GoBackAsync()
     {
         await Shell.Current.GoToAsync("..");
@@ -73,5 +61,27 @@ public abstract class BaseViewModel : INotifyPropertyChanged
     protected async Task DisplayAlert(string title, string message, string cancel = "OK")
     {
         await Application.Current.MainPage.DisplayAlert(title, message, cancel);
+    }
+
+    protected async Task NavigateToAsync(string route, Dictionary<string, object> parameters = null)
+    {
+        try
+        {
+            if (Application.Current?.MainPage != null)
+            {
+                if (parameters != null)
+                {
+                    await Shell.Current.GoToAsync(route, parameters);
+                }
+                else
+                {
+                    await Shell.Current.GoToAsync(route);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка навигации: {ex.Message}");
+        }
     }
 }

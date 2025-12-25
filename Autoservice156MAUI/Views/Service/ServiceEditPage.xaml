@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Autoservice156MAUI.Views.Service.ServiceEditPage"
+             Title="Добавить услугу">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="15" Padding="20">
+            <Label Text="Добавление услуги" FontSize="18" FontAttributes="Bold"/>
+
+            <Entry Placeholder="Название услуги *" x:Name="NameEntry"/>
+            <Entry Placeholder="Описание" x:Name="DescriptionEntry"/>
+            <Entry Placeholder="Цена (руб)" x:Name="PriceEntry" Keyboard="Numeric"/>
+            <Entry Placeholder="Длительность (мин)" x:Name="DurationEntry" Keyboard="Numeric"/>
+            <Entry Placeholder="Категория" x:Name="CategoryEntry"/>
+
+            <Button Text="Сохранить" Clicked="OnSaveClicked" BackgroundColor="#512BD4" TextColor="White"/>
+            <Button Text="Отмена" 
+        Clicked="OnCancelClicked" 
+        BackgroundColor="LightGray" 
+        TextColor="Black"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

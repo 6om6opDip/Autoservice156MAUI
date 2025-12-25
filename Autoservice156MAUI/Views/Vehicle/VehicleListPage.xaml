@@ -1,78 +1,122 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:Autoservice156MAUI.ViewModels.Vehicle"
              x:Class="Autoservice156MAUI.Views.Vehicle.VehicleListPage"
              Title="Транспорт">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Добавить" Clicked="OnAddClicked" />
+        <ToolbarItem Text="Добавить" Command="{Binding AddVehicleCommand}" />
+        <ToolbarItem Text="⟳" Command="{Binding RefreshCommand}" />
     </ContentPage.ToolbarItems>
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="20" Padding="20">
+    <Grid RowDefinitions="Auto,*,Auto">
 
-            <Label Text="🚗 Транспортные средства" 
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="#333333"/>
+        <!-- Заголовок с индикатором API -->
+        <Frame Grid.Row="0" 
+               Margin="10" 
+               Padding="15" 
+               CornerRadius="10"
+               BackgroundColor="{Binding ApiStatusColor}">
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="🚗 Транспортные средства" 
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       VerticalOptions="Center"/>
 
-            <CollectionView x:Name="VehiclesCollection"
-                            SelectionMode="Single"
-                            SelectionChanged="OnVehicleSelected">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Padding="15" 
-                               Margin="0,0,0,10"
-                               BorderColor="#E0E0E0"
-                               CornerRadius="10">
-                            <VerticalStackLayout Spacing="8">
-                                <Label Text="{Binding FullName}"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       TextColor="#333333"/>
+                <Frame Padding="8,4" 
+                       CornerRadius="6" 
+                       BackgroundColor="{Binding ApiStatusColor}">
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="{Binding ApiStatusText}" 
+                               FontSize="12"
+                               TextColor="White"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Frame>
+            </HorizontalStackLayout>
+        </Frame>
 
-                                <HorizontalStackLayout Spacing="15">
-                                    <Label Text="{Binding LicensePlate}"
-                                           FontSize="13"
-                                           TextColor="#512BD4"/>
-                                    <Label Text="•"
-                                           FontSize="13"
+        <!-- Поиск и список -->
+        <VerticalStackLayout Grid.Row="1" Spacing="10" Padding="10">
+
+            <SearchBar Placeholder="Поиск транспорта..."
+                       Text="{Binding SearchText}"
+                       Margin="0,0,0,10"/>
+
+            <RefreshView Command="{Binding RefreshCommand}"
+                         IsRefreshing="{Binding IsBusy}">
+                <CollectionView ItemsSource="{Binding FilteredVehicles}"
+                                SelectionMode="Single">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="15" 
+                                   Margin="0,0,0,10"
+                                   BorderColor="#E0E0E0"
+                                   CornerRadius="10">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="{Binding FullName}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#333333"/>
+
+                                    <HorizontalStackLayout Spacing="15">
+                                        <Label Text="{Binding LicensePlate}"
+                                               FontSize="13"
+                                               TextColor="#512BD4"/>
+                                        <Label Text="•"
+                                               FontSize="13"
+                                               TextColor="#999999"/>
+                                        <Label Text="{Binding Year, StringFormat='Год: {0}'}"
+                                               FontSize="13"
+                                               TextColor="#666666"/>
+                                    </HorizontalStackLayout>
+
+                                    <Label Text="{Binding VIN}"
+                                           FontSize="12"
                                            TextColor="#999999"/>
-                                    <Label Text="{Binding Year, StringFormat='Год: {0}'}"
-                                           FontSize="13"
-                                           TextColor="#666666"/>
-                                </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
 
-                                <Label Text="{Binding VIN}"
-                                       FontSize="12"
-                                       TextColor="#999999"/>
-                            </VerticalStackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout HorizontalOptions="Center"
-                                         VerticalOptions="Center"
-                                         Spacing="15"
-                                         Padding="40">
-                        <Label Text="🚗"
-                               FontSize="40"
-                               HorizontalOptions="Center"/>
-                        <Label Text="Транспорт не найден"
-                               FontSize="16"
-                               HorizontalOptions="Center"/>
-                        <Button Text="Добавить транспорт"
-                                Clicked="OnAddClicked"
-                                BackgroundColor="#512BD4"
-                                TextColor="White"
-                                CornerRadius="10"
-                                HeightRequest="45"/>
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
-            </CollectionView>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Spacing="15"
+                                             Padding="40">
+                            <Label Text="🚗"
+                                   FontSize="40"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Транспорт не найден"
+                                   FontSize="16"
+                                   HorizontalOptions="Center"/>
+                            <Button Text="Добавить транспорт"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AddVehicleCommand}"
+                                    BackgroundColor="#512BD4"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    HeightRequest="45"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+            </RefreshView>
 
         </VerticalStackLayout>
-    </ScrollView>
 
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                          IsVisible="{Binding IsBusy}"
+                          Grid.RowSpan="3"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"
+                          Color="#512BD4"/>
+
+        <Label Text="{Binding ErrorMessage}"
+               Grid.Row="2"
+               Margin="20"
+               TextColor="Red"
+               IsVisible="{Binding HasError}"
+               HorizontalOptions="Center"/>
+    </Grid>
 </ContentPage>
